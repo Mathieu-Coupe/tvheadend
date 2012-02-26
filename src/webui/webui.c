@@ -609,8 +609,10 @@ page_dvrfile(http_connection_t *hc, const char *remain, void *opaque)
     while(content_len > 0) {
       chunk = MIN(1024 * 1024 * 1024, content_len);
       r = sendfile(hc->hc_fd, fd, NULL, chunk);
-      if(r == -1)
+      if(r == -1) {
+	close(fd);
 	return -1;
+      }
       content_len -= r;
     }
   }
