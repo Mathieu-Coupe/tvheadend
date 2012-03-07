@@ -240,8 +240,10 @@ pvr_generate_filename(dvr_entry_t *de)
 
 
   /* */
-  if(makedirs(path) != 0)
+  if(makedirs(path) != 0) {
+    free(filename);
     return -1;
+  }
   
 
   /* Construct final name */
