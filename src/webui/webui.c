@@ -161,8 +161,12 @@ http_stream_run(http_connection_t *hc, streaming_queue_t *sq, th_subscription_t 
           getsockopt(hc->hc_fd, SOL_SOCKET, SO_ERROR, (char *)&err, &errlen);  
           
           //Abort upon socket error, or after 20 seconds of silence
-          if(err || timeouts >= 20){
-            run = 0;            
+          if(err) {
+	    tvhlog(LOG_DEBUG, "webui",  "Client hung up, exit streaming");
+	    run = 0;
+	  } else if (timeouts >= 20) {
+	    tvhlog(LOG_WARNING, "webui",  "Timeout waiting for packets");
+	    run = 0;
           }
       }
       pthread_mutex_unlock(&sq->sq_mutex);
@@ -177,7 +181,6 @@ http_stream_run(http_connection_t *hc, streaming_queue_t *sq, th_subscription_t 
       if(!mkm)
         break;
 
-      pkt_ref_inc(sm->sm_data);
       run = !mk_mux_write_pkt(mkm, sm->sm_data);
       sm->sm_data = NULL;
 
@@ -423,12 +426,12 @@ http_stream_service(http_connection_t *hc, service_t *service,
                                        direct);
 
   pthread_mutex_unlock(&global_lock);
-
-  http_stream_run(hc, &sq, s);
-
-  pthread_mutex_lock(&global_lock);
-  subscription_unsubscribe(s);
-  pthread_mutex_unlock(&global_lock);
+  if (s) {
+    http_stream_run(hc, &sq, s);
+    pthread_mutex_lock(&global_lock);
+    subscription_unsubscribe(s);
+    pthread_mutex_unlock(&global_lock);
+  }
 
   if (gh)
     globalheaders_destroy(gh);
