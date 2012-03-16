@@ -258,8 +258,11 @@ http_stream_run(http_connection_t *hc, streaming_queue_t *sq, th_subscription_t 
       break;
 
     case SMT_MPEGTS:
-      if (s->ths_flags & SUBSCRIPTION_RAW_MPEGTS)
-        run = (write(hc->hc_fd, sm->sm_data, 188) == 188);
+      if (s->ths_flags & SUBSCRIPTION_RAW_MPEGTS) {
+        streaming_tsbuf_t *tsbuf = sm->sm_data;
+        uint32_t size = tsbuf->ts_cnt * 188;
+        run = (write(hc->hc_fd, tsbuf->ts_data, size) == size);
+      }
       break;
 
     case SMT_EXIT:
@@ -413,7 +416,7 @@ http_stream_service(http_connection_t *hc, service_t *service,
   streaming_target_t *gh = NULL;
   streaming_target_t *tsfix = NULL;
 
-  streaming_queue_init(&sq, mkv ? 0 : ~SMT_TO_MASK(SUBSCRIPTION_RAW_MPEGTS));
+  streaming_queue_init(&sq, mkv ? 0 : SMT_TO_MASK(SMT_PACKET));
   if (mkv) {
     gh = globalheaders_create(&sq.sq_st);
     tsfix = tsfix_create(gh);
@@ -454,7 +457,7 @@ http_stream_channel(http_connection_t *hc, channel_t *ch, int mkv)
   streaming_target_t *tsfix = NULL;
   int priority = 100;
 
-  streaming_queue_init(&sq, mkv ? 0 : ~SMT_TO_MASK(SUBSCRIPTION_RAW_MPEGTS));
+  streaming_queue_init(&sq, mkv ? 0 : SMT_TO_MASK(SMT_PACKET));
   if (mkv) {
     gh = globalheaders_create(&sq.sq_st);
     tsfix = tsfix_create(gh);
