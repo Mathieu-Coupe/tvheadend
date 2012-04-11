@@ -60,32 +60,37 @@ mk_ts_create(const char *filename,
 
   // XXX Code from webui.c, it doesn't work with HD stream (H264+EAC3) and XBMC
   if (strcmp(cfg->dvr_format, "mpegts") == 0) {
-	uint8_t pat_ts[188];
-	uint8_t pmt_ts[188];
+        streaming_tsbuf_t tsbuf;
+        struct {
+          uint8_t pat_ts[188];
+          uint8_t pmt_ts[188];
+        } s;
 	int pcrpid = ss->ss_pcr_pid;
 	int pmtpid = 0x0fff;
 
-	//Write PAT
-	memset(pat_ts, 0xff, 188);
-	psi_build_pat(NULL, pat_ts+5, 183, pmtpid);
-	pat_ts[0] = 0x47;
-	pat_ts[1] = 0x40;
-	pat_ts[2] = 0x00;
-	pat_ts[3] = 0x10;
-	pat_ts[4] = 0x00;
-	mk_ts_write(mkr, pat_ts);
-	if(mkr->error)
-	  return NULL;
+	tsbuf.ts_cnt = 2;
+	tsbuf.ts_data = (uint8_t *)&s;
 
-	//Write PMT
-	memset(pmt_ts, 0xff, 188);
-	psi_build_pmt(ss, pmt_ts+5, 183, pcrpid);
-	pmt_ts[0] = 0x47;
-	pmt_ts[1] = 0x40 | (pmtpid >> 8);
-	pmt_ts[2] = pmtpid;
-	pmt_ts[3] = 0x10;
-	pmt_ts[4] = 0x00;
-	mk_ts_write(mkr, pmt_ts);
+	//Build PAT
+	memset(s.pat_ts, 0xff, 188);
+	psi_build_pat(NULL, s.pat_ts+5, 183, pmtpid);
+	s.pat_ts[0] = 0x47;
+	s.pat_ts[1] = 0x40;
+	s.pat_ts[2] = 0x00;
+	s.pat_ts[3] = 0x10;
+	s.pat_ts[4] = 0x00;
+
+	//Build PMT
+	memset(s.pmt_ts, 0xff, 188);
+	psi_build_pmt(ss, s.pmt_ts+5, 183, pcrpid);
+	s.pmt_ts[0] = 0x47;
+	s.pmt_ts[1] = 0x40 | (pmtpid >> 8);
+	s.pmt_ts[2] = pmtpid;
+	s.pmt_ts[3] = 0x10;
+	s.pmt_ts[4] = 0x00;
+
+	//Write PAT+PMT
+	mk_ts_write(mkr, &tsbuf);
 	if(mkr->error)
 	  return NULL;
   }
@@ -97,10 +102,10 @@ mk_ts_create(const char *filename,
  *
  */
 void
-mk_ts_write(mk_ts_t *mkr, const uint8_t *tspacket)
+mk_ts_write(mk_ts_t *mkr, const streaming_tsbuf_t *tsbuf)
 {
   if(!mkr->error) {
-    if(!write(mkr->fd, tspacket, 188)) {
+    if(!write(mkr->fd, tsbuf->ts_data, tsbuf->ts_cnt * 188)) {
       mkr->error = errno;
       tvhlog(LOG_ERR, "RAWTS", "%s: Unable to write -- %s",
         mkr->filename, strerror(errno));

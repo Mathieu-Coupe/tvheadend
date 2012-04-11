@@ -62,12 +62,14 @@ dvr_rec_subscribe(dvr_entry_t *de)
   char buf[100];
   int weight;
   dvr_config_t *cfg = dvr_config_find_by_name_default(de->de_config_name);
+  int matroska = strcmp(cfg->dvr_format, "matroska") == 0;
 
   assert(de->de_s == NULL);
 
   snprintf(buf, sizeof(buf), "DVR: %s", de->de_title);
 
-  streaming_queue_init(&de->de_sq, 0);
+  streaming_queue_init(&de->de_sq,
+                        matroska ? 0 : SMT_TO_MASK(SMT_PACKET));
 
   pthread_create(&de->de_thread, NULL, dvr_thread, de);
 
@@ -77,7 +79,7 @@ dvr_rec_subscribe(dvr_entry_t *de)
     weight = 300;
 
   tvhlog(LOG_DEBUG, "dvr", "Use %s container", cfg->dvr_format);
-  if(strcmp(cfg->dvr_format, "matroska") == 0) {
+  if(matroska) {
     de->de_gh = globalheaders_create(&de->de_sq.sq_st);
     de->de_tsfix = tsfix_create(de->de_gh);
     de->de_s = subscription_create_from_channel(de->de_channel, weight,
@@ -510,11 +512,8 @@ dvr_thread(void *aux)
     case SMT_MPEGTS:
       if(dispatch_clock > de->de_start - (60 * de->de_start_extra)) {
     	dvr_rec_set_state(de, DVR_RS_RUNNING, 0);
-    	if(de->de_mkts != NULL) {
-    	  mk_ts_write(de->de_mkts, sm->sm_data);
-    	  free(sm->sm_data);
-    	  sm->sm_data = NULL;
-    	}
+    	if(de->de_mkts != NULL)
+    	  mk_ts_write(de->de_mkts, (streaming_tsbuf_t *)sm->sm_data);
       }
       break;
 

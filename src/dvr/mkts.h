@@ -25,7 +25,7 @@ mk_ts_t *mk_ts_create(const char *filename,
 			const struct streaming_start *ss,
 			const struct dvr_entry *de);
 
-void mk_ts_write(mk_ts_t *mkr, const uint8_t *tspacket);
+void mk_ts_write(mk_ts_t *mkr, const streaming_tsbuf_t *tsbuf);
 
 void mk_ts_close(mk_ts_t *mkr);
 
