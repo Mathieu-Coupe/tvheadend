@@ -155,7 +155,7 @@ VERSION=$(shell support/version.sh)
 CURVERSION=$(shell cat ${BUILDDIR}/ver || echo "0")
 
 # Common CFLAGS for all files
-CFLAGS_com  = -g -funsigned-char -O2 
+CFLAGS_com  = -g -funsigned-char -O2 -march=native
 CFLAGS_com += -D_FILE_OFFSET_BITS=64
 CFLAGS_com += -I${BUILDDIR} -I${CURDIR}/src -I${CURDIR}
 CFLAGS_com += -DHTS_VERSION=\"$(VERSION)\"
