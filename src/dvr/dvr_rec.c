@@ -321,6 +321,12 @@ dvr_rec_start(dvr_entry_t *de, const streaming_start_t *ss)
   int i;
   dvr_config_t *cfg = dvr_config_find_by_name_default(de->de_config_name);
 
+  if (de->de_mkts) {	/* reconfigured */
+    tvhlog(LOG_INFO, "dvr", "%s reconfigured service \"%s\"",
+                        de->de_ititle, si->si_service ?: "<N/A>");
+    goto reconfigured;
+  }
+
   if(pvr_generate_filename(de) != 0) {
     dvr_rec_fatal_error(de, "Unable to create directories");
     return;
@@ -345,6 +351,7 @@ dvr_rec_start(dvr_entry_t *de, const streaming_start_t *ss)
 	}
   }
 
+reconfigured:
   tvhlog(LOG_INFO, "dvr", "%s from "
 	 "adapter: \"%s\", "
 	 "network: \"%s\", mux: \"%s\", provider: \"%s\", "
@@ -457,6 +464,11 @@ dvr_thread(void *aux)
 	tvhlog(LOG_INFO, 
 	       "dvr", "Recording completed: \"%s\"",
 	       de->de_filename ?: de->de_title);
+
+      } else if (sm->sm_code == SM_CODE_SOURCE_RECONFIGURED && de->de_mkts) {        
+
+        /* Ignore this STOP */
+        break;
 
       } else {
 
