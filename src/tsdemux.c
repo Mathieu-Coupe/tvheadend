@@ -205,7 +205,7 @@ ts_recv_packet1(service_t *t, const uint8_t *tsb, int64_t *pcrp)
   st = service_stream_find(t, pid);
 
   /* Extract PCR */
-  if(tsb[3] & 0x20 && tsb[4] > 0 && tsb[5] & 0x10 && !error)
+  if( (tsb[3] & 0x20) && tsb[4] > 0 && (tsb[5] & 0x10) && !error)
     ts_extract_pcr(t, st, tsb, pcrp);
 
   if(st == NULL) {

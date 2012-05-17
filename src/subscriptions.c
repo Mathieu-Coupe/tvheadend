@@ -83,7 +83,7 @@ subscription_link_service(th_subscription_t *s, service_t *t)
   streaming_target_connect(&t->s_streaming_pad, &s->ths_input);
 
 
-  if(s->ths_start_message != NULL && t->s_streaming_status & TSS_PACKETS) {
+  if(s->ths_start_message != NULL && (t->s_streaming_status & TSS_PACKETS) ) {
 
     s->ths_state = SUBSCRIPTION_GOT_SERVICE;
 
@@ -238,7 +238,7 @@ subscription_input(void *opauqe, streaming_message_t *sm)
     }
 
     if(sm->sm_type == SMT_SERVICE_STATUS &&
-       sm->sm_code & (TSS_GRACEPERIOD | TSS_ERRORS)) {
+       (sm->sm_code & (TSS_GRACEPERIOD | TSS_ERRORS)) ) {
       // No, mark our subscription as bad_service
       // the scheduler will take care of things
       s->ths_testing_error = tss2errcode(sm->sm_code);
@@ -248,7 +248,7 @@ subscription_input(void *opauqe, streaming_message_t *sm)
     }
 
     if(sm->sm_type == SMT_SERVICE_STATUS &&
-       sm->sm_code & TSS_PACKETS) {
+       (sm->sm_code & TSS_PACKETS) ) {
       if(s->ths_start_message != NULL) {
 	streaming_target_deliver(s->ths_output, s->ths_start_message);
 	s->ths_start_message = NULL;

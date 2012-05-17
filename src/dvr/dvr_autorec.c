@@ -193,7 +193,7 @@ build_weekday_tags(char *buf, size_t buflen, int mask)
 {
   int i, p = 0;
   for(i = 0; i < 7; i++) {
-    if(mask & (1 << i) && p < buflen - 3) {
+    if( (mask & (1 << i)) && p < buflen - 3) {
       if(p != 0)
 	buf[p++] = ',';
       buf[p++] = '1' + i;
