@@ -2,7 +2,7 @@
 #
 # Entry point for the Doozer autobuild system
 #
-# (c) Andreas Ã–man 2011. All rights reserved.
+# (c) Andreas Öman 2011. All rights reserved.
 #
 #
 

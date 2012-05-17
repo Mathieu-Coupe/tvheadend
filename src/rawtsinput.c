@@ -1,6 +1,6 @@
 /*
  *  Raw TS input (for debugging)
- *  Copyright (C) 2009 Andreas Ã–man
+ *  Copyright (C) 2009 Andreas Öman
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by

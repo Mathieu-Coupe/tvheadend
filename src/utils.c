@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2005 Michael Niedermayer <michaelni@gmx.at>
  * Copyright (c) 2006 Ryan Martell. (rdm4@martellventures.com)
- * Copyright (c) 2010 Andreas Ã–man
+ * Copyright (c) 2010 Andreas Öman
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by

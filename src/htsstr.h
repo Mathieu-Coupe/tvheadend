@@ -1,6 +1,6 @@
 /*
  *  String helper functions
- *  Copyright (C) 2008 Andreas Ã–man
+ *  Copyright (C) 2008 Andreas Öman
  *  Copyright (C) 2008 Mattias Wadman
  *
  *  This program is free software: you can redistribute it and/or modify

@@ -1,7 +1,7 @@
 /*
  * LATM / AAC Parser
  *
- * Copyright (C) 2009 Andreas Ã–man
+ * Copyright (C) 2009 Andreas Öman
  *
  * Based on LATM Parser patch sent to ffmpeg-devel@
  * copyright (c) 2009 Paul Kendall <paul@kcbbs.gen.nz>

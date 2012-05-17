@@ -2,7 +2,7 @@
 #
 # Tvheadend configure shared functions
 #
-# Copyright (c) 2005-2008 Andreas Ã–man
+# Copyright (c) 2005-2008 Andreas Öman
 #
 # Based on FFmpeg's configure script:
 #

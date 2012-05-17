@@ -2,7 +2,7 @@
  * matroska_ebml.c:
  *****************************************************************************
  * Copyright (C) 2005 Mike Matsnev
- * Copyright (C) 2010 Andreas Ã–man
+ * Copyright (C) 2010 Andreas Öman
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by

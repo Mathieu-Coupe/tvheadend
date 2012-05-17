@@ -1,7 +1,7 @@
 Source: tvheadend
 Section: video
 Priority: extra
-Maintainer: Andreas Ã–man <andreas@lonelycoder.com>
+Maintainer: Andreas Öman <andreas@lonelycoder.com>
 Build-Depends: debhelper (>= 7.0.50), pkg-config, libavahi-client-dev, libssl-dev
 Standards-Version: 3.7.3
 

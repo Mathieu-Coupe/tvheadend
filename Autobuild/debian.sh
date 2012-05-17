@@ -6,7 +6,7 @@ echo >>${CHANGELOG}
 echo >>${CHANGELOG} "  * The full changelog can be found at "
 echo >>${CHANGELOG} "    http://www.lonelycoder.com/tvheadend/download"
 echo >>${CHANGELOG}
-echo >>${CHANGELOG} " -- Andreas Ã–man <andreas@lonelycoder.com>  ${NOW}"
+echo >>${CHANGELOG} " -- Andreas Öman <andreas@lonelycoder.com>  ${NOW}"
 cat ${CHANGELOG}
 export JOBSARGS
 export JARGS
