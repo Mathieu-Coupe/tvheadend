@@ -1,6 +1,6 @@
 /*
  *  tvheadend, HTSP interface
- *  Copyright (C) 2007 Andreas Öman
+ *  Copyright (C) 2007 Andreas ï¿½man
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -42,7 +42,7 @@
 
 #include <sys/statvfs.h>
 #include "settings.h"
-#include <sys/time.h>
+#include <time.h>
 
 static void *htsp_server;
 
@@ -50,7 +50,7 @@ static void *htsp_server;
 
 #define HTSP_PRIV_MASK (ACCESS_STREAMING)
 
-extern char *dvr_storage;
+//extern char *dvr_storage;
 
 LIST_HEAD(htsp_connection_list, htsp_connection);
 LIST_HEAD(htsp_subscription_list, htsp_subscription);
@@ -1225,6 +1225,10 @@ htsp_read_loop(htsp_connection_t *htsp)
 
     htsmsg_destroy(m);
   }
+
+
+  // not reached
+  return 0;
 }
 
 
@@ -1544,7 +1548,6 @@ htsp_stream_deliver(htsp_subscription_t *hs, th_pkt_t *pkt)
   }
 
   m = htsmsg_create_map();
- 
   htsmsg_add_str(m, "method", "muxpkt");
   htsmsg_add_u32(m, "subscriptionId", hs->hs_sid);
   htsmsg_add_u32(m, "frametype", frametypearray[pkt->pkt_frametype]);
@@ -1784,6 +1787,7 @@ htsp_streaming_input(void *opaque, streaming_message_t *sm)
 
   case SMT_EXIT:
     abort();
+    break;
   }
   streaming_msg_free(sm);
 }

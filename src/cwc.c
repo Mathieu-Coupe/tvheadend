@@ -1,6 +1,6 @@
 /*
  *  tvheadend, CWC interface
- *  Copyright (C) 2007 Andreas Öman
+ *  Copyright (C) 2007 Andreas ï¿½man
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -47,7 +47,7 @@
 #define TVHEADEND_PROTOCOL_ID 0x6502
 #define CWC_KEEPALIVE_INTERVAL 30
 
-#define CWS_NETMSGSIZE 362
+#define CWS_NETMSGSIZE 480
 #define CWS_FIRSTCMDNO 0xe0
 
 /**

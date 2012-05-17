@@ -1,6 +1,6 @@
 /*
  *  Tvheadend - structures
- *  Copyright (C) 2007 Andreas Öman
+ *  Copyright (C) 2007 Andreas ï¿½man
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -170,7 +170,7 @@ typedef enum {
 
 #define SCT_ISVIDEO(t) ((t) == SCT_MPEG2VIDEO || (t) == SCT_H264)
 #define SCT_ISAUDIO(t) ((t) == SCT_MPEG2AUDIO || (t) == SCT_AC3 || \
-                        (t) == SCT_AAC || (t) == SCT_MP4A)
+			(t) == SCT_AAC || (t) == SCT_EAC3 ||  (t) == SCT_MP4A)
 
 /**
  * The signal status of a tuner
@@ -311,12 +311,18 @@ typedef struct streaming_target {
   st_callback_t *st_cb;
   void *st_opaque;
   int st_reject_filter;
+  int st_clone;
 } streaming_target_t;
 
 
 /**
  *
  */
+typedef struct streaming_tsbuf {
+  uint32_t ts_cnt;
+  uint8_t *ts_data;
+} streaming_tsbuf_t;
+
 typedef struct streaming_queue {
   
   streaming_target_t sq_st;
@@ -326,6 +332,8 @@ typedef struct streaming_queue {
 					    packets */
   
   struct streaming_message_queue sq_queue;
+  
+  streaming_tsbuf_t *sq_tsbuf;
 
 } streaming_queue_t;
 

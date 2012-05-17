@@ -98,7 +98,7 @@ entry_group_callback(AvahiEntryGroup *g, AvahiEntryGroupState state,
 
   case AVAHI_ENTRY_GROUP_UNCOMMITED:
   case AVAHI_ENTRY_GROUP_REGISTERING:
-    ;
+    break;
   }
 }
 

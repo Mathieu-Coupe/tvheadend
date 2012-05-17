@@ -130,6 +130,7 @@ static int cactl (int fd, int cai, int request, void *argp) {
       DBG(">>>>>>>> cactl unhandled req %d cai %d", request, cai);
       //errno = EINVAL;
       //return -1;
+      break;
   } // switch
   return 0;
 } // cactl

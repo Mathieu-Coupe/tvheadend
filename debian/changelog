@@ -1,0 +1,7 @@
+tvheadend (2.12.99) hts; urgency=low
+
+  * Make upstream compile on debian
+
+ -- Eric Valette <Eric.Valette@free.fr>  Wed, 25 Apr 2012 11:15:19 +0200
+
+

@@ -1,6 +1,6 @@
 /*
  *  tvheadend, EXTJS based interface
- *  Copyright (C) 2008 Andreas Öman
+ *  Copyright (C) 2008 Andreas ï¿½man
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -884,6 +884,19 @@ extjs_dvr(http_connection_t *hc, const char *remain, void *opaque)
         tvhlog(LOG_INFO,"dvr","User '%s' has no dvr config with identical name, using default...", hc->hc_username);
     }
 
+    if (http_access_verify(hc, ACCESS_RECORDER_ALL)) {
+      config_name = NULL;
+      LIST_FOREACH(cfg, &dvrconfigs, config_link) {
+        if (cfg->dvr_config_name && hc->hc_username &&
+            strcmp(cfg->dvr_config_name, hc->hc_username) == 0) {
+          config_name = cfg->dvr_config_name;
+          break;
+        }
+      }
+      if (config_name == NULL && hc->hc_username)
+        tvhlog(LOG_INFO,"dvr","User '%s' has no dvr config with identical name, using default...", hc->hc_username);
+    }
+
     dvr_entry_create(config_name,
                      ch, start, stop, title, NULL, hc->hc_representative, 
 		     NULL, NULL, 0, dvr_pri2val(pri));
@@ -915,6 +928,8 @@ extjs_dvr(http_connection_t *hc, const char *remain, void *opaque)
 
     r = htsmsg_create_map();
     htsmsg_add_str(r, "storage", cfg->dvr_storage);
+    htsmsg_add_str(r, "format", cfg->dvr_format);
+    htsmsg_add_str(r, "file-postfix", cfg->dvr_file_postfix);
     if(cfg->dvr_postproc != NULL)
       htsmsg_add_str(r, "postproc", cfg->dvr_postproc);
     htsmsg_add_u32(r, "retention", cfg->dvr_retention_days);
@@ -945,6 +960,12 @@ extjs_dvr(http_connection_t *hc, const char *remain, void *opaque)
     if((s = http_arg_get(&hc->hc_req_args, "storage")) != NULL)
       dvr_storage_set(cfg,s);
     
+    if((s = http_arg_get(&hc->hc_req_args, "format")) != NULL)
+      dvr_format_set(cfg,s);
+
+    if((s = http_arg_get(&hc->hc_req_args, "file-postfix")) != NULL)
+      dvr_file_postfix_set(cfg,s);
+
     if((s = http_arg_get(&hc->hc_req_args, "postproc")) != NULL)
       dvr_postproc_set(cfg,s);
 

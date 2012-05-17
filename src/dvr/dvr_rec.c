@@ -32,8 +32,10 @@
 #include "service.h"
 #include "plumbing/tsfix.h"
 #include "plumbing/globalheaders.h"
+#include "subscriptions.h"
 
 #include "mkmux.h"
+#include "mkts.h"
 
 /**
  *
@@ -59,12 +61,15 @@ dvr_rec_subscribe(dvr_entry_t *de)
 {
   char buf[100];
   int weight;
+  dvr_config_t *cfg = dvr_config_find_by_name_default(de->de_config_name);
+  int matroska = strcmp(cfg->dvr_format, "matroska") == 0;
 
   assert(de->de_s == NULL);
 
   snprintf(buf, sizeof(buf), "DVR: %s", de->de_title);
 
-  streaming_queue_init(&de->de_sq, 0);
+  streaming_queue_init(&de->de_sq,
+                        matroska ? 0 : SMT_TO_MASK(SMT_PACKET));
 
   pthread_create(&de->de_thread, NULL, dvr_thread, de);
 
@@ -73,12 +78,18 @@ dvr_rec_subscribe(dvr_entry_t *de)
   else
     weight = 300;
 
-  de->de_gh = globalheaders_create(&de->de_sq.sq_st);
-
-  de->de_tsfix = tsfix_create(de->de_gh);
-
-  de->de_s = subscription_create_from_channel(de->de_channel, weight,
+  tvhlog(LOG_DEBUG, "dvr", "Use %s container", cfg->dvr_format);
+  if(matroska) {
+    de->de_gh = globalheaders_create(&de->de_sq.sq_st);
+    de->de_tsfix = tsfix_create(de->de_gh);
+    de->de_s = subscription_create_from_channel(de->de_channel, weight,
 					      buf, de->de_tsfix, 0);
+  // } else if { (Other containers)
+  // mpegts works like rawts
+  } else {
+	de->de_s = subscription_create_from_channel(de->de_channel, weight,
+					      buf, &de->de_sq.sq_st, SUBSCRIPTION_RAW_MPEGTS);
+  }
 }
 
 /**
@@ -87,6 +98,7 @@ dvr_rec_subscribe(dvr_entry_t *de)
 void
 dvr_rec_unsubscribe(dvr_entry_t *de, int stopcode)
 {
+  dvr_config_t *cfg = dvr_config_find_by_name_default(de->de_config_name);
   assert(de->de_s != NULL);
 
   subscription_unsubscribe(de->de_s);
@@ -96,8 +108,12 @@ dvr_rec_unsubscribe(dvr_entry_t *de, int stopcode)
   pthread_join(de->de_thread, NULL);
   de->de_s = NULL;
 
-  tsfix_destroy(de->de_tsfix);
-  globalheaders_destroy(de->de_gh);
+  if(strcmp(cfg->dvr_format, "matroska") == 0) {
+    tsfix_destroy(de->de_tsfix);
+    globalheaders_destroy(de->de_gh);
+  // } else if { (Other containers)
+  // mpegts works like rawts
+  }
 
   de->de_last_error = stopcode;
 }
@@ -305,19 +321,37 @@ dvr_rec_start(dvr_entry_t *de, const streaming_start_t *ss)
   int i;
   dvr_config_t *cfg = dvr_config_find_by_name_default(de->de_config_name);
 
+  if (de->de_mkts) {	/* reconfigured */
+    tvhlog(LOG_INFO, "dvr", "%s reconfigured service \"%s\"",
+                        de->de_ititle, si->si_service ?: "<N/A>");
+    goto reconfigured;
+  }
+
   if(pvr_generate_filename(de) != 0) {
     dvr_rec_fatal_error(de, "Unable to create directories");
     return;
   }
 
-  de->de_mkmux = mk_mux_create(de->de_filename, ss, de, 
+  if(strcmp(cfg->dvr_format, "matroska") == 0) {
+    de->de_mkmux = mk_mux_create(de->de_filename, ss, de,
 			       !!(cfg->dvr_flags & DVR_TAG_FILES));
 
-  if(de->de_mkmux == NULL) {
-    dvr_rec_fatal_error(de, "Unable to open file");
-    return;
+    if(de->de_mkmux == NULL) {
+      dvr_rec_fatal_error(de, "Unable to open file");
+      return;
+    }
+  //} else if { (other containers)
+  // mpegts works like rawts
+  } else {
+	de->de_mkts = mk_ts_create(de->de_filename, ss, de);
+
+	if(de->de_mkts == NULL) {
+	  dvr_rec_fatal_error(de, "Unable to open file");
+	  return;
+	}
   }
 
+reconfigured:
   tvhlog(LOG_INFO, "dvr", "%s from "
 	 "adapter: \"%s\", "
 	 "network: \"%s\", mux: \"%s\", provider: \"%s\", "
@@ -431,6 +465,11 @@ dvr_thread(void *aux)
 	       "dvr", "Recording completed: \"%s\"",
 	       de->de_filename ?: de->de_title);
 
+      } else if (sm->sm_code == SM_CODE_SOURCE_RECONFIGURED && de->de_mkts) {        
+
+        /* Ignore this STOP */
+        break;
+
       } else {
 
 	if(de->de_last_error != sm->sm_code) {
@@ -483,6 +522,11 @@ dvr_thread(void *aux)
       break;
 
     case SMT_MPEGTS:
+      if(dispatch_clock > de->de_start - (60 * de->de_start_extra)) {
+    	dvr_rec_set_state(de, DVR_RS_RUNNING, 0);
+    	if(de->de_mkts != NULL)
+    	  mk_ts_write(de->de_mkts, (streaming_tsbuf_t *)sm->sm_data);
+      }
       break;
 
     case SMT_EXIT:
@@ -555,12 +599,20 @@ dvr_spawn_postproc(dvr_entry_t *de, const char *dvr_postproc)
 static void
 dvr_thread_epilog(dvr_entry_t *de)
 {
-  if(de->de_mkmux) {
-    mk_mux_close(de->de_mkmux);
-    de->de_mkmux = NULL;
+  dvr_config_t *cfg = dvr_config_find_by_name_default(de->de_config_name);
+
+  if(strcmp(cfg->dvr_format, "matroska") == 0) {
+    if (de->de_mkmux) {
+	mk_mux_close(de->de_mkmux);
+	de->de_mkmux = NULL;
+    }
+  } else {
+    if (de->de_mkts) {
+	mk_ts_close(de->de_mkts);
+	de->de_mkts = NULL;
+    }
   }
 
-  dvr_config_t *cfg = dvr_config_find_by_name_default(de->de_config_name);
   if(cfg->dvr_postproc)
     dvr_spawn_postproc(de,cfg->dvr_postproc);
 }

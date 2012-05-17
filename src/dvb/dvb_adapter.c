@@ -1,6 +1,6 @@
 /*
  *  TV Input - Linux DVB interface
- *  Copyright (C) 2007 Andreas Öman
+ *  Copyright (C) 2007 Andreas ï¿½man
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -578,6 +578,9 @@ dvb_adapter_input_dvr(void *aux)
 
     pthread_mutex_unlock(&tda->tda_delivery_mutex);
   }
+
+  // not reached
+  return NULL;
 }
 
 

@@ -130,7 +130,7 @@ dvb_s_config(const char *l)
   char fec[20], polarisation;
   int r;
 
-  r = sscanf(l, "%lu %c %lu %s",
+  r = sscanf(l, "%lu %c %lu %19s",
 	     &freq, &polarisation, &symrate, fec);
 
   if(r != 4)
@@ -165,7 +165,7 @@ dvb_c_config(const char *l)
   char fec[20], qam[20];
   int r;
 
-  r = sscanf(l, "%lu %lu %s %s",
+  r = sscanf(l, "%lu %lu %19s %19s",
 	     &freq, &symrate, fec, qam);
 
   if(r != 4)
@@ -184,7 +184,7 @@ atsc_config(const char *l)
   char modulation[20];
   int r;
 
-  r = sscanf(l, "%lu %s",
+  r = sscanf(l, "%lu %19s",
 	     &freq, modulation);
 
   if(r != 2)
