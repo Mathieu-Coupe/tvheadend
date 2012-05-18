@@ -713,6 +713,9 @@ dvr_entry_cancel(dvr_entry_t *de) {
 		abort();
 		break;
 	}
+
+	/* not reached */
+	return NULL;
 }
 
 /**

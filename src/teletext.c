@@ -263,6 +263,7 @@ static void extract_subtitle(service_t *t, elementary_stream_t *st,
 						sub[off++] = (code & 0xff00) >> 8;
 					sub[off++] = code;
 				}
+				break;
 			}
 		}
 		if (start != off)

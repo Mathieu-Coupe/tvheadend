@@ -266,11 +266,12 @@ gh_pass(globalheaders_t *gh, streaming_message_t *sm)
   switch(sm->sm_type) {
   case SMT_START:
     abort(); // Should not happen
+    break;
     
   case SMT_STOP:
     gh->gh_passthru = 0;
     gh_flush(gh);
-    // FALLTHRU
+    /* no break */
   case SMT_EXIT:
   case SMT_SERVICE_STATUS:
   case SMT_NOSTART:

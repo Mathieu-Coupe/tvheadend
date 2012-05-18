@@ -215,6 +215,7 @@ htsmsg_binary_write(htsmsg_t *msg, uint8_t *ptr)
       break;
     default:
       abort();
+      break;
     }
 
 

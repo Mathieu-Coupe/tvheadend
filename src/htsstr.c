@@ -117,7 +117,8 @@ htsstr_argsplit(const char *str) {
         case '"':
           quote = 1;
           s++;
-          /* fallthru */
+          /* no break */
+
         default:
           inarg = 1;
           start = s;
@@ -166,7 +167,8 @@ htsstr_format0(const char *str, char *out, char **map) {
           n += strlen(f);
           break;
         }
-        /* fallthru */
+        /* no break */
+
       default:
         if(out)
           out[n] = *s;
