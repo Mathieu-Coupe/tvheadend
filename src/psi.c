@@ -311,7 +311,8 @@ psi_desc_ca(service_t *t, const uint8_t *buffer, int size)
       provid = size < 4 ? 0 : buffer[4];
       break;
     }
-    /* fallthru */
+    /* no break */
+
   default:
     provid = 0;
     break;

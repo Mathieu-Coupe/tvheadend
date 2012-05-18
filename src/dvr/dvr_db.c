@@ -713,6 +713,9 @@ dvr_entry_cancel(dvr_entry_t *de) {
 		abort();
 		break;
 	}
+
+	/* not reached */
+	return NULL;
 }
 
 /**
@@ -865,9 +868,9 @@ dvr_config_t *
 dvr_config_find_by_name_default(const char *name) {
 	dvr_config_t *cfg;
 
-	cfg = dvr_config_find_by_name(name);
+		cfg = dvr_config_find_by_name(name);
 
-	if (cfg == NULL) {
+		if (cfg == NULL) {
 		tvhlog(LOG_WARNING, "dvr", "Configuration '%s' not found", name);
 		cfg = dvr_config_find_by_name("");
 	}

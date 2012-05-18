@@ -236,7 +236,7 @@ client_callback(AvahiClient *c, AvahiClientState state, void *userdata)
     break;
 
   case AVAHI_CLIENT_CONNECTING:
-    ;
+    break;
   }
 }
 
